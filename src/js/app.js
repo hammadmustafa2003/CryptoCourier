@@ -3,23 +3,6 @@ App = {
   contracts: {},
 
   init: async function () {
-    // Load pets.
-    // $.getJSON('../pets.json', function(data) {
-    //   var petsRow = $('#petsRow');
-    //   var petTemplate = $('#petTemplate');
-
-    //   for (i = 0; i < data.length; i ++) {
-    //     petTemplate.find('.panel-title').text(data[i].name);
-    //     petTemplate.find('img').attr('src', data[i].picture);
-    //     petTemplate.find('.pet-breed').text(data[i].breed);
-    //     petTemplate.find('.pet-age').text(data[i].age);
-    //     petTemplate.find('.pet-location').text(data[i].location);
-    //     petTemplate.find('.btn-adopt').attr('data-id', data[i].id);
-
-    //     petsRow.append(petTemplate.html());
-    //   }
-    // });
-
     return await App.initWeb3();
   },
 
@@ -45,6 +28,16 @@ App = {
     }
     web3 = new Web3(App.web3Provider);
     console.log('Web3 initialized', web3);
+
+    web3.eth.getAccounts(function (error, accounts) {
+      if (error) {
+        console.log(error);
+      }
+
+    });
+    $(document).ready(function(){
+      $("#account-number").html(web3.eth.accounts[0]);
+    });
     return App.initContract();
   },
 
@@ -56,17 +49,11 @@ App = {
 
       // Set the provider for our contract
       App.contracts.courierManager.setProvider(App.web3Provider);
-
-      // Use our contract to retrieve and mark the adopted pets
-      // return App.markAdopted();
     });
-
     return App.bindEvents();
   },
 
   bindEvents: function () {
-    // $(document).on('click', '.btn-adopt', App.handleAdopt);
-
     $(document).on('click', '#addCourierButton', App.addCourier);
     // $(document).on('click', '#removeCourierButton', App.removeCourier);
     $(document).on('click', '#viewCouriersButton', App.viewCouriers);
@@ -86,12 +73,8 @@ App = {
       }
       App.contracts.courierManager.deployed().then(async function (instance) {
         courierManagerInstance = instance;
-        // Execute adopt as a transaction by sending account
-        let retVal = await courierManagerInstance.addCourier(title, description, { from: accounts[0], value });
-        console.log(retVal);
+        let retVal = await courierManagerInstance.addCourier(title, description, { from: accounts[0], value: value });
         let events = await courierManagerInstance.allEvents();
-        console.log(events);
-        console.log(courierManagerInstance);
       }).catch(function (err) {
         console.log(err.message);
       });
@@ -106,27 +89,38 @@ App = {
   viewCouriers: async function (event) {
     event.preventDefault();
 
+
     var courierManagerInstance;
-
-    App.contracts.courierManager.deployed().then(async function (instance) {
+    const courierList = document.getElementById('courierList');
+    courierList.innerHTML = '';
+    App.contracts.courierManager.deployed().then(function (instance) {
       courierManagerInstance = instance;
-      // console.log(courierManagerInstance);
-      // Execute adopt as a transaction by sending account
-      // result = await courierManagerInstance.getCourierCount.call();
 
-      courierManagerInstance.getAddresses.call().then(async function (courierAdresses) {
-        console.log(courierAdresses);
-        for (let i = 0; i < 100; i++) {
-          // if (courierAdresses[i] !== "0x") {
-            const title = await courierManagerInstance.getTitle(i);
-            const description = await courierManagerInstance.getDescription(i);
-            console.log(title, description);
-          // }
+      return courierManagerInstance.getAddresses.call();
+    }).then(function (address) {
+      console.log(address);
+      for (i = 0; i < address.length; i++) {
+        if (address[i] !== '0x0000000000000000000000000000000000000000') {
+          console.log(i);
+          courierManagerInstance.getCourier(i).then(function (courier) {
+            console.log(courier);
+            const card = document.createElement('div');
+            card.className = 'card parcel-card';
+            card.style.width = '18rem';
+            card.innerHTML =   
+            `<img class="card-img-top" height="100px" width="100px" src="/images/courier.png" alt="Card image cap">
+            <h2>${courier[1]}</h2>
+            <p>${courier[2]}</p>`;
+            // li.textContent = `ID: ${i}, Title: ${courier[1]}, Description: ${courier[2]}`;
+            courierList.appendChild(card);
+          });
         }
-      });
+      }
     }).catch(function (err) {
-      console.log(err);
+      console.log(err.message);
     });
+
+
   }
 
   //   const couriers = await courierManager.methods.getAllCouriers().call();
