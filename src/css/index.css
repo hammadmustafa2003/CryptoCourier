@@ -62,7 +62,14 @@
     border-radius: 10px;
     justify-content: center;
     align-items: center;
+    /* box-shadow: 0 10px 15px rgba(0,0,0,0.08); */
+    position: relative;
+    transition: all 200ms ease-in;
+  }
+
+  .parcel-card:hover{
     box-shadow: 0 10px 15px rgba(0,0,0,0.08);
+    scale: 105%;
   }
 
   .courier-container{
@@ -73,6 +80,17 @@
     gap: 20px;
     justify-content: center;
     align-items: center;
+  }
+
+  .id-marker{
+      position: absolute;
+      top:5px;
+      right:5px;
+      padding: 5px 3px;
+
+      color:white;
+      background-color: red;
+      border-radius: 25px;
   }
 
   .forms{

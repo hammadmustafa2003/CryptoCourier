@@ -1,17 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.5.16;
-// pragma experimental ABIEncoderV2;
 
 contract CourierManager {
-    // struct Courier {
-    //     string title;
-    //     string description;
-    //     uint256 id;
-    //     address owner;
-    // }
 
-    // mapping(uint256 => Courier) public couriers;
-    // uint256 public courierCount;
     address[100] public owners;
     string[100] public titles;
     string[100] public descriptions;
@@ -38,10 +29,6 @@ contract CourierManager {
         owners[_id] = address(0);
         emit CourierRemoved(_id);
     }
-
-    // function getAllCouriers() public view returns (address[100] memory, string[100] memory, string[100] memory) {
-    //     return (owners, titles, descriptions);
-    // }
 
     function getAddresses() public view returns (address[100] memory) {
         return owners;
